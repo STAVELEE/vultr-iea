@@ -1,12 +1,7 @@
-import '../styles/globals.css';
-import AuthProvider from '../components/AuthProvider';
+'use client';
 
-export default function RootLayout({ children }) {
-  return (
-    <html lang="en">
-      <body>
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
-  );
+import { SessionProvider } from 'next-auth/react';
+
+export default function AuthProvider({ children }) {
+  return <SessionProvider>{children}</SessionProvider>;
 }
