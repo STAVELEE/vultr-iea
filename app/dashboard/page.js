@@ -2,34 +2,13 @@
 
 import { useEffect, useState } from 'react';
 
-useEffect(() => {
-  const fetchServers = async () => {
-    const response = await fetch('/api/servers');
-    const data = await response.json();
-
-    console.log(data);  // 응답 확인하기
-
-    if (data.success) {
-      setServers(data.servers);
-    } else {
-      console.error('Failed to load servers:', data.error);
-    }
-    setLoading(false);
-  };
-
-  fetchServers();
-}, []);
-
-
-function Dashboard() {
-  const [servers, setServers] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     const fetchServers = async () => {
       const response = await fetch('/api/servers');
       const data = await response.json();
-
+  
+      console.log(data);  // 응답 확인하기
+  
       if (data.success) {
         setServers(data.servers);
       } else {
@@ -37,9 +16,10 @@ function Dashboard() {
       }
       setLoading(false);
     };
-
+  
     fetchServers();
   }, []);
+  
 
   const handleDelete = async (server_id) => {
     const response = await fetch('/api/delete-server', {
