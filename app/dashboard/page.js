@@ -43,29 +43,21 @@ function Dashboard() {
     }
   };
 
-  const handleCreateServer = async () => {
-    const response = await fetch('/api/create-server', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        region: 'New York',
-        plan: 'Standard',
-        os: 'Ubuntu',
-        label: 'New Server',
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert('Server created successfully');
-      setServers([...servers, data.server]);
-    } else {
-      alert('Error creating server');
+  const createServer = async () => {
+    try {
+      const res = await fetch('/api/create-server', { method: 'POST' });
+      const data = await res.json();
+  
+      if (data.success) {
+        alert("Server Created Successfully!");
+      } else {
+        alert("Server Creation Failed!");
+      }
+    } catch (error) {
+      console.error("Error creating server:", error);
     }
   };
+  
 
   if (loading) {
     return <p>Loading...</p>;
@@ -74,7 +66,7 @@ function Dashboard() {
   return (
     <div>
       <h1>Server Dashboard</h1>
-      <button onClick={handleCreateServer}>Create Server</button> {/* 버튼 추가 */}
+      <button onClick={createServer}>Create Server</button>
       <ul>
         {servers.map((server) => (
           <li key={server.server_id}>
