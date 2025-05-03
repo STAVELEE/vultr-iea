@@ -1,12 +1,9 @@
-// app/create-server/page.js
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { supabase } from '../../lib/supabase';  // Supabase client import
-import { createVultrServer } from '../../lib/vultr';  // Vultr API client import  
 
 export default function CreateServerPage() {
   const { data: session } = useSession();
@@ -42,8 +39,8 @@ export default function CreateServerPage() {
         setPlans(planRes.data.plans);
         setOses(osRes.data.os.filter(o => ['ubuntu', 'rocky', 'windows', 'debian', 'centos'].includes(o.name.toLowerCase())));
       } catch (error) {
-        console.error('Error fetching Vultr data:', error);
-        alert('Failed to fetch server data. Please try again later.');
+        console.error(error);
+        alert('Failed to fetch data from Vultr');
       }
     }
 
@@ -51,17 +48,14 @@ export default function CreateServerPage() {
   }, [session]);
 
   const handleCreate = async () => {
-    if (!region || !plan || !os || !label) {
-      alert('Please fill in all fields.');
-      return;
-    }
+    if (!region || !plan || !os || !label) return;
     setLoading(true);
 
     try {
       const res = await fetch('/api/create-server', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           region,
@@ -77,11 +71,11 @@ export default function CreateServerPage() {
       if (data.success) {
         router.push('/dashboard');
       } else {
-        alert('Server creation failed: ' + data.message);
+        alert('Server creation failed');
       }
     } catch (err) {
-      console.error('Error creating server:', err);
-      alert('Error creating server. Please try again.');
+      console.error(err);
+      alert('Error creating server');
     } finally {
       setLoading(false);
     }

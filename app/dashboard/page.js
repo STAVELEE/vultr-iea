@@ -43,7 +43,7 @@ function Dashboard() {
     }
   };
 
-  const createServer = async () => {
+  const handleCreate = async () => {
     try {
       const res = await fetch('/api/create-server', { method: 'POST' });
       const data = await res.json();
@@ -66,7 +66,7 @@ function Dashboard() {
   return (
     <div>
       <h1>Server Dashboard</h1>
-      <button onClick={createServer}>Create Server</button>
+      <button onClick={handleCreate}>Create Server</button>
       <ul>
         {servers.map((server) => (
           <li key={server.server_id}>
