@@ -1,11 +1,7 @@
-import AuthProvider from './components/AuthProvider';
+import { SessionProvider } from 'next-auth/react';
 
-function App({ Component, pageProps }) {
-  return (
-    <AuthProvider>
-      <Component {...pageProps} />
-    </AuthProvider>
-  );
+function AuthProvider({ children }) {
+  return <SessionProvider>{children}</SessionProvider>;
 }
 
-export default App;
+export default AuthProvider;
