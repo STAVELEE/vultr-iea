@@ -1,6 +1,8 @@
 // api/create-server.js
 import { supabase } from '../../lib/supabase';
 import { createVultrServer } from '../../lib/vultr';
+import { AuthProvider } from '../components/AuthProvider';  // 경로 확인
+
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
