@@ -1,39 +1,59 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../api/auth/[...nextauth]/route';
-import { supabase } from '../../lib/supabase';
+'use client';
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+import { useEffect, useState } from 'react';
 
-  if (!session) {
-    return <div className="text-center p-10">🔒 You must be logged in to view this page.</div>;
-  }
+function Dashboard() {
+  const [servers, setServers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const email = session.user.email;
+  useEffect(() => {
+    const fetchServers = async () => {
+      const response = await fetch('/api/servers');
+      const data = await response.json();
 
-  const { data, error } = await supabase
-    .from('servers')
-    .select('*')
-    .eq('owner', email)
-    .order('created_at', { ascending: false });
+      if (data.success) {
+        setServers(data.servers);
+      } else {
+        console.error('Failed to load servers:', data.error);
+      }
+      setLoading(false);
+    };
 
-  if (error) {
-    return <div className="p-6 text-red-600">❌ Failed to load servers: {error.message}</div>;
-  }
+    fetchServers();
+  }, []);
+
+  const handleDelete = async (server_id) => {
+    const response = await fetch('/api/delete-server', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ server_id }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Server deleted successfully');
+      setServers(servers.filter((server) => server.server_id !== server_id));
+    } else {
+      alert('Error deleting server');
+    }
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">🚀 Your Servers</h1>
-      {data.length === 0 ? (
-        <p>No servers found.</p>
+    <div>
+      <h1>Server Dashboard</h1>
+      {loading ? (
+        <p>Loading...</p>
       ) : (
-        <ul className="space-y-4">
-          {data.map((server) => (
-            <li key={server.id} className="p-4 border rounded shadow">
-              <div><strong>Label:</strong> {server.label}</div>
-              <div><strong>Region:</strong> {server.region}</div>
-              <div><strong>Plan:</strong> {server.plan}</div>
-              <div><strong>Created:</strong> {server.created_at}</div>
+        <ul>
+          {servers.map((server) => (
+            <li key={server.server_id}>
+              <h3>{server.label}</h3>
+              <p>{server.region}</p>
+              <p>{server.plan}</p>
+              <button onClick={() => handleDelete(server.server_id)}>Delete</button>
             </li>
           ))}
         </ul>
@@ -41,3 +61,5 @@ export default async function DashboardPage() {
     </div>
   );
 }
+
+export default Dashboard;
