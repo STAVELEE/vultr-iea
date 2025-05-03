@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';  // Supabase client import
+import { createVultrServer } from '../../lib/vultr';  // Vultr API client import  
 
 export default function CreateServerPage() {
   const { data: session } = useSession();
@@ -26,41 +27,61 @@ export default function CreateServerPage() {
     if (!session) return;
 
     async function fetchVultrData() {
-      const headers = {
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_VULTR_API_KEY}`
-      };
+      try {
+        const headers = {
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_VULTR_API_KEY}`
+        };
 
-      const [regionRes, planRes, osRes] = await Promise.all([
-        axios.get('https://api.vultr.com/v2/regions', { headers }),
-        axios.get('https://api.vultr.com/v2/plans', { headers }),
-        axios.get('https://api.vultr.com/v2/os', { headers })
-      ]);
+        const [regionRes, planRes, osRes] = await Promise.all([
+          axios.get('https://api.vultr.com/v2/regions', { headers }),
+          axios.get('https://api.vultr.com/v2/plans', { headers }),
+          axios.get('https://api.vultr.com/v2/os', { headers })
+        ]);
 
-      setRegions(regionRes.data.regions);
-      setPlans(planRes.data.plans);
-      setOses(osRes.data.os.filter(o => ['ubuntu', 'rocky', 'windows', 'debian', 'centos'].includes(o.name.toLowerCase())));
+        setRegions(regionRes.data.regions);
+        setPlans(planRes.data.plans);
+        setOses(osRes.data.os.filter(o => ['ubuntu', 'rocky', 'windows', 'debian', 'centos'].includes(o.name.toLowerCase())));
+      } catch (error) {
+        console.error('Error fetching Vultr data:', error);
+        alert('Failed to fetch server data. Please try again later.');
+      }
     }
 
     fetchVultrData();
   }, [session]);
 
   const handleCreate = async () => {
-    if (!region || !plan || !os || !label) return;
+    if (!region || !plan || !os || !label) {
+      alert('Please fill in all fields.');
+      return;
+    }
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/create-vultr-server', {
-        region, plan, os, label, email: session.user.email
+      const res = await fetch('/api/create-server', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          region,
+          plan,
+          os,
+          label,
+          email: session.user.email
+        })
       });
 
-      if (res.data.success) {
+      const data = await res.json();
+
+      if (data.success) {
         router.push('/dashboard');
       } else {
-        alert('Server creation failed');
+        alert('Server creation failed: ' + data.message);
       }
     } catch (err) {
-      console.error(err);
-      alert('Error creating server');
+      console.error('Error creating server:', err);
+      alert('Error creating server. Please try again.');
     } finally {
       setLoading(false);
     }

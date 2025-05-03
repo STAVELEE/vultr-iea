@@ -1,7 +1,11 @@
-'use client';
+import AuthProvider from './components/AuthProvider';
 
-import { SessionProvider } from 'next-auth/react';
-
-export default function AuthProvider({ children }) {
-  return <SessionProvider>{children}</SessionProvider>;
+function App({ Component, pageProps }) {
+  return (
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  );
 }
+
+export default App;
