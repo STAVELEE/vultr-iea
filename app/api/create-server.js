@@ -1,16 +1,15 @@
-// pages/api/create-server.js
-export default async function handler(req, res) {
-    if (req.method === 'POST') {
-      // 서버 생성 로직
-      try {
-        // 예시: Vultr API를 호출하여 서버 생성
-        const server = await createVultrServer();
-        res.status(200).json({ success: true, server });
-      } catch (error) {
-        res.status(500).json({ success: false, message: "Server creation failed" });
-      }
-    } else {
-      res.status(405).json({ success: false, message: "Method Not Allowed" });
-    }
-  }
-  
+// 예시 코드 - Vultr API 호출 부분 (올바르게 수정된 코드)
+const response = await fetch('https://api.vultr.com/v2/servers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${VULTR_API_KEY}`, // Vultr API 키
+    },
+    body: JSON.stringify({
+      region: region, // 서버 지역
+      plan: plan,     // 서버 플랜
+      os: os,         // 운영 체제
+      label: label,   // 서버 이름
+    }),
+  });
+  const data = await response.json();
