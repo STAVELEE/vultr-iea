@@ -1,3 +1,3 @@
-# Vultr Server Panel
+# Vultr Server Panel (Fixed)
 
-Vercel + Supabase + Vultr API로 만든 자동화 패널입니다.
+Vercel + Supabase + Vultr API with NextAuth.js (App Router).
