@@ -43,6 +43,30 @@ function Dashboard() {
     }
   };
 
+  const handleCreateServer = async () => {
+    const response = await fetch('/api/create-server', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        region: 'New York',
+        plan: 'Standard',
+        os: 'Ubuntu',
+        label: 'New Server',
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert('Server created successfully');
+      setServers([...servers, data.server]);
+    } else {
+      alert('Error creating server');
+    }
+  };
+
   if (loading) {
     return <p>Loading...</p>;
   }
@@ -50,6 +74,7 @@ function Dashboard() {
   return (
     <div>
       <h1>Server Dashboard</h1>
+      <button onClick={handleCreateServer}>Create Server</button> {/* 버튼 추가 */}
       <ul>
         {servers.map((server) => (
           <li key={server.server_id}>
